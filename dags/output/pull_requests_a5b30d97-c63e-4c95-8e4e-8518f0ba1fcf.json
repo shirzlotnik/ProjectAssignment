@@ -1,0 +1,15 @@
+[
+  {
+    "number": 1,
+    "title": "Open pr",
+    "user_login": "aviyashar",
+    "user_id": 41910398,
+    "repository": "Scytale_repo",
+    "merged_at": null,
+    "base_branch": "main",
+    "head_branch": "aviyashar-patch-1",
+    "reviews": [],
+    "approved_reviews": 0,
+    "check_runs": []
+  }
+]
