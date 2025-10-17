@@ -35,7 +35,7 @@ This pipeline automates the process of extracting pull request data from GitHub,
 
 ```bash
 git clone https://github.com/shirzlotnik/ProjectAssignment.git
-cd github-pr-compliance-etl
+cd ProjectAssignment
 ```
 
 ### 2. Open with PyCharm
