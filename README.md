@@ -29,16 +29,6 @@ This pipeline automates the process of extracting pull request data from GitHub,
 - Apache Airflow 2.0+
 - GitHub Personal Access Token with repository access
 
-### Required Python Packages
-
-```
-apache-airflow>=2.0.0
-requests>=2.28.0
-pandas>=1.5.0
-jsonschema>=4.17.0
-pyarrow>=10.0.0
-```
-
 ## 🚀 Installation
 
 ### 1. Clone the Repository
