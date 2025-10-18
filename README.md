@@ -59,12 +59,13 @@ Create a GitHub Personal Access Token:
 
 ### 2. Update Configuration
 
-Edit the variables to your values:
+Edit the variables to your values or set env variables:
 
 ```python
-    REPO_OWNER: str = 'your-org'        # Your GitHub organization
-    REPO_NAME: str = 'your-repo'        # Your repository name
-    GITHUB_TOKEN: str = 'your-token'  # Optional second repo
+    # GitHub Configuration
+    GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
+    GITHUB_REPO_OWNER = os.getenv('GITHUB_REPO_OWNER', 'Scytale-exercise')
+    GITHUB_REPO_NAME = os.getenv('GITHUB_REPO_NAME', 'Scytale_repo')
 ```
 
 ## 📖 Usage
