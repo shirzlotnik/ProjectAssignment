@@ -1,8 +1,8 @@
-import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from etl_logic import extract, transform, load
+
+from tasks import extract, transform, load
 
 
 default_args = {
@@ -15,7 +15,7 @@ default_args = {
 
 
 with DAG(
-    'compliance_etl',
+    dag_id='complaince_etl',
     default_args=default_args,
     schedule_interval="0 12 * * *",
     catchup=False,
