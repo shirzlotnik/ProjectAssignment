@@ -1,0 +1,65 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "number": {
+        "type": "integer"
+      },
+      "title": {
+        "type": "string"
+      },
+      "user_login": {
+        "type": "string"
+      },
+      "user_id": {
+        "type": "integer"
+      },
+      "repository": {
+        "type": "string"
+      },
+      "merged_at": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "reviews": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "state": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "approved_reviews": {
+        "type": "integer"
+      },
+      "check_runs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "conclusion": {
+              "type": "string"
+            },
+            "completed_at": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "number",
+      "title",
+      "user_login"
+    ]
+  }
+}

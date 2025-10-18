@@ -1,7 +1,9 @@
+import os
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from etl_logic import extract, transform, load
+
 
 default_args = {
     'owner': 'airflow',
@@ -34,5 +36,6 @@ with DAG(
         task_id='load',
         python_callable=load
     )
+
 
     task_extract >> task_transform >> task_load

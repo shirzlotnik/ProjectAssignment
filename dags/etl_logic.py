@@ -21,43 +21,6 @@ GITHUB_AUTH_HEADER = {
 }
 base_url = f'https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}'
 
-pull_requests_schema = {
-    'type': 'array',
-    'items': {
-        'type': 'object',
-        'properties': {
-            'number': {'type': 'integer'},
-            'title': {'type': 'string'},
-            'user_login': {'type': 'string'},
-            'user_id': {'type': 'integer'},
-            'repository': {'type': 'string'},
-            'merged_at': {'type': ['string', 'null']},
-            'reviews': {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {
-                        'state': {'type': 'string'}
-                    }
-                }
-            },
-            'approved_reviews': {'type': 'integer'},
-            'check_runs': {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {
-                        'name': {'type': 'string'},
-                        'conclusion': {'type': 'string'},
-                        'completed_at': {'type': 'string'},
-                    }
-                }
-            }
-        },
-        'required': ['number', 'title', 'user_login']
-    }
-}
-
 
 def json_schema_validation(json_data: dict, schema: dict) -> bool:
     try:
@@ -81,6 +44,9 @@ def handle_json_read(path):
     with open(path, 'r') as file:
         data = json.load(file)
         return data
+
+
+pull_requests_schema = handle_json_read(os.path.join('dags', 'schema.json'))
 
 
 def handle_get_request(url: str, params=None, headers=None):
@@ -200,7 +166,6 @@ def transform(**kwargs):
         if valid:
             logging.info('Creating DataFrame from JSON')
             df = pd.DataFrame(data)
-            df['merged_at'] = pd.to_datetime(df['merged_at'])
             df['status_checks_passed'] = df['check_runs'].apply(
                 lambda checks: all(c['conclusion'] == 'success' for c in checks))
             df.rename(columns={'number': 'pr_number', 'title': 'pr_title',
@@ -220,7 +185,6 @@ def transform(**kwargs):
                 'violations_by_repo': violations_by_repo
             }
 
-            kwargs['ti'].xcom_push(key='transformed_df', value=df.to_dict(orient='records'))
             return df
 
         else:
@@ -231,7 +195,7 @@ def transform(**kwargs):
 
 
 def load(**kwargs):
-    records = kwargs['ti'].xcom_pull(key='transformed_df', task_ids='transform')
+    records = kwargs['ti'].xcom_pull(key='return_value', task_ids='transform')
     df = pd.DataFrame(records)
     df['timestamp'] = datetime.now()
     now = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
@@ -240,3 +204,4 @@ def load(**kwargs):
 
     df.to_parquet(full_path, index=False)
     logging.info(f'Saved Parquet to {full_path}')
+    kwargs['ti'].xcom_push(key='result_path', value=full_path)
