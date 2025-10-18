@@ -27,9 +27,8 @@ The setup for this project is very simple and does not require the other person 
    - Approval rates
    - Violations by repository
 
-3. **Loads** processed data into Parquet files for:
-   - Long-term storage
-   - Compliance audits
+3. **Loads** processed data into Parquet files
+   - Load to duckdb
 
 ## 📦 Prerequisites
 
