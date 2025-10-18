@@ -1,5 +1,4 @@
 import os
-import uuid
 from pathlib import Path
 from typing import Dict
 
@@ -36,7 +35,6 @@ class Config:
 
     @classmethod
     def get_github_headers(cls) -> Dict[str, str]:
-        """Get GitHub API headers"""
         if not cls.GITHUB_TOKEN:
             raise ValueError("GITHUB_TOKEN not configured")
 
@@ -47,7 +45,6 @@ class Config:
 
     @classmethod
     def get_base_url(cls) -> str:
-        """Get GitHub API base URL"""
         return f'https://api.github.com/repos/{cls.GITHUB_REPO_OWNER}/{cls.GITHUB_REPO_NAME}'
 
 

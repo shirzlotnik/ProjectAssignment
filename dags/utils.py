@@ -1,8 +1,11 @@
 import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, List
 from jsonschema import validate, ValidationError
+from config import config
+from functools import wraps
 
 logger = logging.getLogger(__name__)
 
@@ -93,3 +96,35 @@ def load_schema(schema_path: Path) -> Dict:
     except Exception as e:
         logger.warning(f'Could not load schema from {schema_path}: {e}. Using basic schema.')
         raise
+
+
+def retry_on_failure(max_attempts: int = config.MAX_RETRIES, delay: int = config.RETRY_DELAY):
+    """
+    Decorator to retry function on failure with exponential backoff
+
+    Args:
+        max_attempts: Maximum number of retry attempts
+        delay: Base delay in seconds between retries
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_attempts):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_attempts - 1:
+                        logger.error(f'{func.__name__} failed after {max_attempts} attempts')
+                        raise
+
+                    wait_time = delay * (2 ** attempt)
+                    logger.warning(
+                        f'{func.__name__} attempt {attempt + 1}/{max_attempts} failed: {e}. '
+                        f'Retrying in {wait_time}s...'
+                    )
+                    time.sleep(wait_time)
+
+        return wrapper
+
+    return decorator

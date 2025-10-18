@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple
 import requests
 from http import HTTPStatus
 from config import config
+from utils import retry_on_failure
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,7 @@ class GitHubClient:
         self.headers = config.get_github_headers()
         self.timeout = config.REQUESTS_TIMEOUT
 
+    @retry_on_failure()
     def _make_request(self, url: str, params: Optional[Dict] = None) -> requests.Response:
         """
         Make HTTP GET request with rate limiting handling
