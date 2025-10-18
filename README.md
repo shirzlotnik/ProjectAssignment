@@ -4,6 +4,16 @@
 
 This pipeline automates the process of extracting pull request data from GitHub, analyzing compliance and calculating summary reports for audit and monitoring purposes.
 
+### 🧱 Design Decision
+Started with basic functional programming with python - broke down each part of the assignment into a function.
+After i got things to work I started to design the project structure, separate different functions into different files and classes.
+
+The idea was that each class had a specific purpose, one to handle communication with the GitHub API, the other to handle the local storage, and the central one to handle the ETL functions - extract, transform, load.
+I wanted functions that are simple but not useless, after a couple of versions, I got this.
+
+The setup for this project is very simple and does not require the other person to know almost anything.
+
+
 ### What It Does
 
 1. **Extracts** pull request data from GitHub repositories including:
