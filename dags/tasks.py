@@ -1,14 +1,14 @@
 import logging
+import duckdb
+import pandas as pd
 from datetime import datetime
 
-import pandas as pd
-from models import PullRequest, ComplianceSummary
-from utils import write_json, load_schema, validate_json_schema, read_json
+from models import PullRequest
+from utils import write_json, load_schema, validate_json_schema, read_json, calculate_summary
 from github_api_client import GitHubClient
 from config import config
 
 logger = logging.getLogger(__name__)
-
 client = GitHubClient()
 
 
@@ -84,32 +84,6 @@ def extract(**kwargs):
     kwargs['ti'].xcom_push(key='processed_prs_path', value=str(processed_prs_path))
 
 
-def _calculate_summary(df: pd.DataFrame) -> ComplianceSummary:
-    """
-    Calculate compliance summary statistics
-
-    Args:
-        df: DataFrame with compliance data
-
-    Returns:
-        ComplianceSummary object
-    """
-    total_prs = len(df)
-    compliant_prs = int(df['is_compliant'].sum())
-    compliance_rate = compliant_prs / total_prs if total_prs > 0 else 0.0
-
-    summary = ComplianceSummary(
-        total_prs=total_prs,
-        compliant_prs=compliant_prs,
-        compliance_rate=compliance_rate
-    )
-
-    logger.info('Compliance Summary:')
-    logger.info(summary.to_dict())
-
-    return summary
-
-
 def transform(**kwargs):
     """
     Transform PR data and calculate compliance
@@ -143,7 +117,7 @@ def transform(**kwargs):
     df['is_compliant'] = df['code_review_passed'] & df['status_checks_passed']
 
     summary_path = config.OUTPUT_DIR / f'summary_{run_id}.json'
-    write_json(summary_path, _calculate_summary(df).to_dict())
+    write_json(summary_path, calculate_summary(df).to_dict())
 
     return df
 
@@ -152,12 +126,15 @@ def load(**kwargs):
     """
     Load the transformed data from DataFrame to parquet file
     """
+    run_id = kwargs['dag_run'].run_id
     data = kwargs['ti'].xcom_pull(key='return_value', task_ids='transform')
     logger.info('Extracted the data from XCom')
 
-    df = pd.DataFrame(data)
+    pull_requests_df = pd.DataFrame(data)
     now = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
     parquet_path = config.OUTPUT_DIR / f'pull_requests_{now}.parquet'
+    duckdb_parquet_path = str(config.OUTPUT_DIR / f'duckdb_{run_id}.parquet')
 
-    df.to_parquet(parquet_path, index=False)
+    duckdb.sql('SELECT * from pull_requests_df').write_parquet(duckdb_parquet_path)
+    pull_requests_df.to_parquet(parquet_path, index=False)
     logging.info(f'Saved Parquet to {parquet_path}')

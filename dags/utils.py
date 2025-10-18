@@ -1,11 +1,14 @@
 import json
 import logging
 import time
+import pandas as pd
+
 from pathlib import Path
 from typing import Any, Dict, List
 from jsonschema import validate, ValidationError
 from config import config
 from functools import wraps
+from models import ComplianceSummary
 
 logger = logging.getLogger(__name__)
 
@@ -128,3 +131,29 @@ def retry_on_failure(max_attempts: int = config.MAX_RETRIES, delay: int = config
         return wrapper
 
     return decorator
+
+
+def calculate_summary(df: pd.DataFrame) -> ComplianceSummary:
+    """
+    Calculate compliance summary statistics
+
+    Args:
+        df: DataFrame with compliance data
+
+    Returns:
+        ComplianceSummary object
+    """
+    total_prs = len(df)
+    compliant_prs = int(df['is_compliant'].sum())
+    compliance_rate = compliant_prs / total_prs if total_prs > 0 else 0.0
+
+    summary = ComplianceSummary(
+        total_prs=total_prs,
+        compliant_prs=compliant_prs,
+        compliance_rate=compliance_rate
+    )
+
+    logger.info('Compliance Summary:')
+    logger.info(summary.to_dict())
+
+    return summary

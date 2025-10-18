@@ -71,12 +71,13 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-duckdb}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - duckdb-data:/opt/airflow/duckdb
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -111,6 +112,13 @@ services:
       timeout: 30s
       retries: 50
       start_period: 30s
+    restart: always
+
+  duckdb:
+    image: alpine:latest
+    command: tail -f /dev/null
+    volumes:
+      - duckdb-data:/data
     restart: always
 
   airflow-webserver:
@@ -284,3 +292,4 @@ services:
 
 volumes:
   postgres-db-volume:
+  duckdb-data:
