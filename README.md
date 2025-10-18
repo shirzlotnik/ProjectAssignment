@@ -1,10 +1,8 @@
 # GitHub Pull Request Compliance ETL Pipeline
 
-A robust ETL (Extract, Transform, Load) pipeline built with Apache Airflow to monitor and analyze pull request compliance across GitHub repositories.
-
 ## 🎯 Overview
 
-This pipeline automates the process of extracting pull request data from GitHub, analyzing compliance with code review and testing standards, and generating reports for audit and monitoring purposes.
+This pipeline automates the process of extracting pull request data from GitHub, analyzing compliance and calculating summary reports for audit and monitoring purposes.
 
 ### What It Does
 
